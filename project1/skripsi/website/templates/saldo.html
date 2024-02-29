@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Informasi Saldo</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style_signup_berhasil.css') }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+    <div class="container">
+        <form>
+            <h3>Saldo yang Anda Miliki</h3>
+            <h4>Berdasarkan PLTU</h4>
+            <p>Nama PLTU: <span id="nama_pltu"></span></p>
+            <p>Unit PLTU: <span id="unit_pltu"></span></p>
+            <p>Status: <span id="status"></span></p>
+            <div class="btn-box">
+                <button type="button" onclick="back()">Home</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        // Mendefinisikan fungsi untuk kembali ke halaman dashboard
+        function back() {
+            window.location.href = "/dashboard"; // Redirect to the dashboard page
+        }
+
+        // Mendefinisikan URL endpoint untuk fetching data saldo berdasarkan nama perusahaan
+        const namaPerusahaan = "{{ nama_perusahaan }}"; // Ambil nilai nama perusahaan dari server-side template
+        const url = `/api/saldo?nama_perusahaan=${encodeURIComponent(namaPerusahaan)}`;
+
+        // Mengirim permintaan GET untuk mendapatkan data saldo dari server
+        fetch(url)
+            .then(response => {
+                // Memeriksa apakah responsenya sukses (status code 200 OK)
+                if (!response.ok) {
+                    throw new Error('Terjadi kesalahan saat mengambil data saldo');
+                }
+                // Mengembalikan responsenya dalam bentuk JSON
+                return response.json();
+            })
+            .then(data => {
+                // Menampilkan data saldo ke dalam elemen HTML dengan ID yang sesuai
+                document.getElementById('nama_pltu').innerText = `${data.nama_pltu}`;
+                document.getElementById('unit_pltu').innerText = `${data.unit_pltu}`;
+                document.getElementById('status').innerText = `${data.status}`;
+            })
+            .catch(error => {
+                // Menangani kesalahan yang terjadi selama proses fetching data
+                console.error('Error:', error);
+                // Menampilkan pesan kesalahan kepada pengguna
+                alert('Terjadi kesalahan saat mengambil data saldo');
+            });
+    </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<html>
+<head>
+<title>Sign Up gagal</title>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style_signup_gagal.css') }}">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+    <div class="container">
+        <form>
+            <h3>Sign Up Gagal</h3>
+            <h4>Periksa Kembali Nama Perusahaan Anda</h4>
+            <div class="btn-box">
+                <button type="button" onclick="tryAgain()">Coba Lagi</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        function tryAgain() {
+            window.location.href = "/"; // Redirect to the signup page
+        }
+    </script>
+</body>
+</html>
