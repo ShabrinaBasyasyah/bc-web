@@ -51,7 +51,7 @@
         </ul>
     </div>
     <div class="container">
-        <form id="Form1" action="{{ url_for('save_penawaran_route') }}" method="POST" enctype="multipart/form-data">
+        <form id="Form1" >
             <h3>Informasi Perusahaan Pembuat Penawaran</h3>
             <input type="text" name="id_perusahaan" pattern="[0-9]{3}" title="ID Perusahaan (3 digits)" >
             <input type="text" name="nama_pltu_penawar" placeholder="nama pltu" >
@@ -61,7 +61,7 @@
             </div>
         </form>
         
-        <form id="Form2" action="{{ url_for('save_penawaran_route') }}" method="POST" enctype="multipart/form-data">
+        <form id="Form2" >
             <h3>Informasi Waktu Penawaran</h3>
             <input type="date" name="tanggal_penawaran" placeholder="Tanggal Penawaran" >
             <input type="date" name="tanggal_awal_penawaran" placeholder="Tanggal Awal Penawaran" >
@@ -72,7 +72,7 @@
             </div>
         </form>
         
-        <form id="Form3" action="{{ url_for('save_penawaran_route') }}" method="POST" enctype="multipart/form-data">
+        <form id="Form3" >
             <h3>Informasi Penawaran</h3>
             <input type="text" name="ptbae_ditawarkan" placeholder="Penawaran PTBAE" >
             <input type="text" name="satuan" placeholder="Satuan PTBAE (CO2 e)" >
@@ -84,14 +84,14 @@
             </div>
         </form>
         
-        <form id="Form4" action="{{ url_for('save_penawaran_route') }}" method="POST" enctype="multipart/form-data">
+        <form id="Form4" >
             <h3>Informasi Sisa Penawaran</h3>
             <input type="text" name="sisa_penawaran" placeholder="Sisa Penawaran" >
             <input type="text" name="satuan_sisa_penawaran" placeholder="Satuan PTBAE (CO2 e)">
             <input type="text" name="available_penawaran" placeholder="Penawaran Tersedia" >
             <div class="btn-box">
                 <button type="button" id="previous3">Previous</button>
-                <button type="submit" id="submit">Submit</button>
+                <button type="button" id="kirimdata">Submit</button>
             </div>
         </form>
         
@@ -114,11 +114,13 @@
         var Form3 = document.getElementById("Form3");
         var Form4 = document.getElementById("Form4");
         var progress = document.getElementById("progress");
-    
+        
+        const formdata = new FormData()
+
         function sendData(formData) {
             fetch("{{ url_for('save_penawaran_route') }}", {
                 method: 'POST',
-                body: formData
+                body: formdata  
             })
             .then(response => {
                 if (!response.ok) {
@@ -131,7 +133,8 @@
                 redirectToSuccesPage();
             })
             .catch(error => {
-                console.error('There was an error!', error);
+
+                console.error(error);
             });
         }
     
@@ -143,6 +146,7 @@
             var inputs = form.querySelectorAll('input');
             for (var i = 0; i < inputs.length; i++) {
                 if (inputs[i].value.trim() === '') {
+                    console.log('Nilai input kosong pada index:', i); // Menampilkan indeks input yang kosong                
                     alert('Silakan isi semua bidang yang diperlukan!');
                     return false;
                 }
@@ -187,12 +191,24 @@
         document.getElementById("previous3").addEventListener("click", function() {
             moveToPreviousForm(Form4, Form3, "270px");
         });
-    
-        document.getElementById("submit").addEventListener("click", function() {
-            if (validateForm(Form4)) {
-                var formData = new FormData(Form4);
-                sendData(formData);
+        function mergeForm(form) {
+            var inputs = form.querySelectorAll('input');
+            for (var i = 0; i < inputs.length; i++) {
+                formdata.append(inputs[i].name, inputs[i].value)
             }
+        }
+ 
+        document.getElementById("kirimdata").addEventListener("click", function() {
+            if (validateForm(Form1) && validateForm(Form2) && validateForm(Form3) && validateForm(Form4))
+                {
+                    mergeForm(Form1)
+                    mergeForm(Form2)
+                    mergeForm(Form3)
+                    mergeForm(Form4)
+                    console.log(formdata)
+                    sendData(formdata)
+                }
+            
         });
     </script>
         
