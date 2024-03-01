@@ -127,19 +127,26 @@ def save_penawaran(id_penawaran, id_periode_penawaran, id_perusahaan, tanggal_pe
     cur.close()
     conn.close()
 
-def save_permintaan(id_permintaan, id_periode_permintaan, id_pelaku_permintaan, tanggal_permintaan, tanggal_awal_permintaan, tanggal_akhir_permintaan, nama_pltu_peminta, unit_peminta, ptbae_diminta, satuan, harga, mata_uang, jumlah_terbeli, satuan_terbeli, sisa_permintaan, satuan_sisa_permintaan, tanggal_terbeli):
+def save_permintaan(id_permintaan, id_periode_permintaan, id_pelaku_permintaan, tanggal_permintaan,
+                    tanggal_awal_permintaan, tanggal_akhir_permintaan, nama_pltu_peminta, unit_peminta, ptbae_diminta,
+                    satuan, harga, mata_uang, sisa_permintaan, satuan_sisa_permintaan):
     conn = psycopg2.connect(
-        dbname="ptbae",
+        dbname = "ptbae",
         user="postgres",
-        passwors = "dks120193",
-        host="localhost",
-        port=5433
-    )
+        password="dks120193",
+        port="5433"
+    )   
+    
     cur = conn.cursor()
     
-    cur.execute("INSERT INTO permintaan (id_permintaan, id_periode_permintaan, id_pelaku_permintaan, tanggal_permintaan, tanggal_awal_permintaan, tanggal_akhir_permintaan, nama_pltu_peminta, unit_peminta, ptbae_diminta, satuan, harga, mata_uang, jumlah_terbeli, satuan_terbeli, sisa_permintaan, satuan_sisa_permintaan, tanggal_terbeli) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", 
-                (id_permintaan, id_periode_permintaan, id_pelaku_permintaan, tanggal_permintaan, tanggal_awal_permintaan, tanggal_akhir_permintaan, nama_pltu_peminta, unit_peminta, ptbae_diminta, satuan, harga, mata_uang, jumlah_terbeli, satuan_terbeli, sisa_permintaan, satuan_sisa_permintaan, tanggal_terbeli))
-
+    cur.execute("INSERT INTO permintaan (id_permintaan, id_periode_permintaan, id_pelaku_permintaan, tanggal_permintaan,"
+                "tanggal_awal_permintaan, tanggal_akhir_permintaan, nama_pltu_peminta, unit_peminta, ptbae_diminta,"
+                "satuan, harga, mata_uang, jumlah_terbeli, satuan_terbeli, sisa_permintaan, satuan_sisa_permintaan) "
+                "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (id_permintaan, id_periode_permintaan, id_pelaku_permintaan, tanggal_permintaan,
+                tanggal_awal_permintaan, tanggal_akhir_permintaan, nama_pltu_peminta, unit_peminta, ptbae_diminta,
+                satuan, harga, mata_uang, sisa_permintaan, satuan_sisa_permintaan)) 
+    
     conn.commit()
     cur.close()
     conn.close()
@@ -209,99 +216,7 @@ def dashboard():
 # Route untuk halaman home
 @app.route('/home')
 def home():
-    return render_template('dashboard.html')
-
-# Route untuk membuat permintaan
-@app.route('/create_permintaan')
-def buat_permintaan():
-    return render_template('create_permintaan.html')
-
-@app.route('/save_permintaan', methods=['POST'])
-def save_permintaan_route():
-    print(request)
-    if request.method == 'POST':
-        print("Metode permintaan: POST")
-        
-        id_permintaan = generate_id_permintaan()
-        id_periode_permintaan = generate_id_periode_permintaan()
-        
-        id_pelaku_permintaan = request.form.get('id_pelaku_permintaan')
-        tanggal_permintaan = request.form.get('tanggal_permintaan')
-        tanggal_awal_permintaan = request.form.get('tanggal_awal_permintaan')
-        tanggal_akhir_permintaan = request.form.get('tanggal_akhir_permintaan')
-        nama_pltu_peminta = request.form.get('nama_pltu_peminta')
-        unit_peminta = request.form.get('unit_peminta')
-        ptbae_diminta = request.form.get('ptbae_diminta')
-        satuan = request.form.get('satuan')
-        harga = request.form.get('harga')
-        mata_uang = request.form.get('mata_uang')
-        jumlah_terbeli = request.form.get('jumlah_terbeli')
-        satuan_terbeli = request.form.get('satuan_terbeli')
-        sisa_permintaan = request.form.get('satuan_sisa_permintaan')
-        satuan_sisa_permintaan = request.form.get('satuan_sisa_permintaan')
-        tanggal_terbeli = request.form.get('tanggal_terbeli')
-
-        print("ID Pelaku Permintaan:", id_pelaku_permintaan)
-        print("Tanggal Permintaan:", tanggal_permintaan)
-        print("Tanggal Awal Permintaan:", tanggal_awal_permintaan)
-        print("Tanggal Akhir Permintaan:", tanggal_akhir_permintaan)
-        print("Nama PLTU:", nama_pltu_peminta)
-        print("Unit Peminta:", unit_peminta)
-        print("ptbae diminta:", ptbae_diminta)
-        print("satuan:", satuan)
-        print("harga:", harga)
-        print("mata_uang:", mata_uang)
-        print("Jumlah Terbeli:", jumlah_terbeli)
-        print("mata_uang:", mata_uang)
-        print("Jumlah Terbeli:", jumlah_terbeli)
-        print("Satuan Terbeli:", satuan_terbeli)
-        print("Sisa Permintaan:", sisa_permintaan)
-        print("Satuan Sisa Permintaan:", satuan_sisa_permintaan)
-        print("Tanggal Terbeli:", tanggal_terbeli)
-        
-        if not id_pelaku_permintaan:
-            return "ID Pelaku Permintaan tidak boleh kosong"
-        elif not tanggal_permintaan:
-            return "Tanggal Permintaan tidak boleh kosong"
-        elif not tanggal_awal_permintaan:
-            return "Tanggal Awal Permintaan tidak boleh kosong"
-        elif not tanggal_akhir_permintaan:
-            return "Tanggal Akhir Permintaan tidak boleh kosong"
-        elif not nama_pltu_peminta:
-            return "Nama PLTU tidak boleh kosong"
-        elif not unit_peminta:
-            return "Unit tidak boleh kosong"
-        elif not ptbae_diminta:
-            return "Ptbae diminta tidak boleh kosong"
-        elif not satuan:
-            return "Satuan tidak boleh kosong"
-        elif not harga:
-            return "Harga tidak boleh kosong"
-        elif not mata_uang:
-            return "Mata Uang tidak boleh kosong"
-        elif not jumlah_terbeli:
-            return "Jumlah Terbeli tidak boleh kosong"
-        elif not satuan_terbeli:
-            return "Satuan Terbeli tidak boleh kosong"
-        elif not sisa_permintaan:
-            return "Sisa Permintaan tidak boleh kosong"
-        elif not satuan_sisa_permintaan:
-            return "Satuan Sisa Permintaan tidak boleh kosong"
-        elif not tanggal_terbeli:
-            return "Tanggal Terbeli tidak boleh kosong"
-        else:
-            try:
-                save_permintaan(id_permintaan, id_periode_permintaan, id_pelaku_permintaan, tanggal_permintaan, tanggal_awal_permintaan, tanggal_akhir_permintaan, nama_pltu_peminta, unit_peminta, ptbae_diminta, satuan, harga, mata_uang, jumlah_terbeli, satuan_terbeli, sisa_permintaan, satuan_sisa_permintaan, tanggal_terbeli)
-                return redirect(url_for('permintaan_berhasil'))
-            except Exception as e:
-                return render_template('permintaan_gagal.html')
-    else:
-        return "Method not allowed"
-
-@app.route('/permintaan_berhasil')
-def permintaan_berhasil():
-    return render_template('permintaan_berhasl.html')
-       
+    return render_template('dashboard.html')       
 # Route to render the form for creating an offer
 @app.route('/create_penawaran')
 def buat_penawaran():
@@ -397,6 +312,84 @@ def save_penawaran_route():
 def penawaran_berhasil():
     return render_template('penawaran_berhasil.html')
 
+@app.route('/create_permintaan')
+def buat_permintaan():
+    return render_template('create_permintaan.html')
+
+@app.route('/save_permintaan', methods=['POST'])
+def save_permintaan_route():
+    print(request)
+    if request.method == 'POST':
+        print("Metode Permintaan: POST")
+        
+        id_permintaan = generate_id_permintaan()
+        id_periode_permintaan = generate_id_periode_permintaan()
+        
+        id_pelaku_permintaan = request.form.get('id_pelaku_permintaan')
+        tanggal_permintaan = request.form.get('tanggal_permintaan')
+        tanggal_awal_permintaan = request.form.get('tanggal_awal_permintaan')
+        tanggal_akhir_permintaan = request.form.get('tanggal_akhir_permintaan')
+        nama_pltu_peminta = request.form.get('nama_pltu_peminta')
+        unit_peminta = request.form.get('unit_peminta')
+        ptbae_diminta = request.form.get('ptbae_diminta')
+        satuan = request.form.get('satuan')
+        harga = request.form.get('harga')
+        mata_uang = request.form.get('mata_uang')
+        sisa_permintaan = request.form.get('sisa_permintaan')
+        satuan_sisa_permintaan = request.form.get('satuan_sisa_permintaan')
+        
+        print("ID Perusahaan:", id_pelaku_permintaan)
+        print ("Tanggal Permintaan:", tanggal_permintaan)
+        print("Tanggal Awal Permintaan:", tanggal_awal_permintaan )
+        print("Tanggal Akhir Permintaan:", tanggal_akhir_permintaan)
+        print("nama pltu peminta:", nama_pltu_peminta)
+        print("unit peminta:", unit_peminta)
+        print("PTBAE diminta:", ptbae_diminta)
+        print("satuan:", satuan)
+        print("harga:", harga)
+        print("mata_uang:", mata_uang)
+        print("sisa permintaan:", sisa_permintaan)
+        print("satuan sisa permintaan:", satuan_sisa_permintaan)
+        
+        if not id_pelaku_permintaan:
+            return "ID Perusahaan tidak boleh kosong"
+        elif not tanggal_permintaan:
+            return "tanggal permintaan tidak boleh kosong"
+        elif not tanggal_awal_permintaan:
+            return "tanggal awal permintaan tidak boleh kosong"
+        elif not tanggal_akhir_permintaan:
+            return "tanggal akhir permintaan tidak boleh kosong"
+        elif not nama_pltu_peminta:
+            return "nama pltu tidak boleh kosong"
+        elif not unit_peminta:
+            return "unit peminta tidak boleh kosong"
+        elif not ptbae_diminta:
+            return "ptbae diminta tidak boleh kosong"
+        elif not satuan:
+            return "satuan tidak boleh kosong"
+        elif not harga: 
+            return "harga tidak boleh kosong"
+        elif not mata_uang:
+            return "mata uang tidak boleh kosong"
+        elif sisa_permintaan:
+            return "sisa permintaan tidak boleh kosong"
+        elif satuan_sisa_permintaan:
+            return "satuan sisa permintaan tidak boleh kosong"
+        else:
+            try:
+                save_permintaan(id_permintaan, id_periode_permintaan, id_pelaku_permintaan, tanggal_permintaan,
+                    tanggal_awal_permintaan, tanggal_akhir_permintaan, nama_pltu_peminta, unit_peminta, ptbae_diminta,
+                    satuan, harga, mata_uang, sisa_permintaan, satuan_sisa_permintaan)
+                return redirect(url_for('permintaan_berhasil'))
+            except Exception as e:
+                return render_template('permintaan_gagal.html')
+    else:
+        return "Method not allowed"
+
+@app.route('/permintaan_berhasil')
+def permintaan_berhasil():
+    return render_template('permintaan_berhasil.html')
+           
 # Route untuk transaksi beli
 @app.route('/transaksibeli')
 def buattransaksibeli():
