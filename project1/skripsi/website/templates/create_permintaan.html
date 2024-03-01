@@ -193,6 +193,7 @@
         function mergeForm(form) {
             var inputs = form.querySelectorAll('input');
             for (var i = 0; i < inputs.length; i++) {
+                console.log(inputs[i].value)
                 formdata.append(inputs[i].name, inputs[i].value)
             }
         }
