@@ -318,7 +318,6 @@ def buat_permintaan():
 
 @app.route('/save_permintaan', methods=['POST'])
 def save_permintaan_route():
-    print(request)
     if request.method == 'POST':
         print("Metode Permintaan: POST")
         
@@ -371,10 +370,6 @@ def save_permintaan_route():
             return "harga tidak boleh kosong"
         elif not mata_uang:
             return "mata uang tidak boleh kosong"
-        elif sisa_permintaan:
-            return "sisa permintaan tidak boleh kosong"
-        elif satuan_sisa_permintaan:
-            return "satuan sisa permintaan tidak boleh kosong"
         else:
             try:
                 save_permintaan(id_permintaan, id_periode_permintaan, id_pelaku_permintaan, tanggal_permintaan,
