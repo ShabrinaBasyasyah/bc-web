@@ -51,9 +51,9 @@
         </ul>
     </div>
     <div class="container">
-        <form id="Form1" >
+        <form id="Form1" action="">
             <h3>Informasi Perusahaan Pembuat Permintaan</h3>
-            <input type="text" name="id_pelaku_permintaan" pattern="[0-9]{3}" title="ID Perusahaan (3 digits)" >
+            <input type="text" name="id_perusahaan" pattern="[0-9]{3}" title="ID Perusahaan (3 digits)" >
             <input type="text" name="nama_pltu_peminta" placeholder="nama pltu" >
             <input type="text" name="unit_peminta" placeholder="unit" >
             <div class="btn-box">
@@ -61,7 +61,7 @@
             </div>
         </form>
         
-        <form id="Form2" >
+        <form id="Form2" action="">
             <h3>Informasi Waktu Permintaan</h3>
             <input type="date" name="tanggal_permintaan" placeholder="Tanggal Permintaan" >
             <input type="date" name="tanggal_awal_permintaan" placeholder="Tanggal Awal Permintaan" >
@@ -72,7 +72,7 @@
             </div>
         </form>
         
-        <form id="Form3" >
+        <form id="Form3" action="">
             <h3>Informasi Permintaan</h3>
             <input type="text" name="ptbae_diminta" placeholder="Permintaan PTBAE" >
             <input type="text" name="satuan" placeholder="Satuan PTBAE (CO2 e)" >
@@ -84,9 +84,9 @@
             </div>
         </form>
         
-        <form id="Form4" >
+        <form id="Form4" action="">
             <h3>Informasi Sisa Permintaan</h3>
-            <input type="text" name="sisa_permintaan" placeholder="sisa_permintaan" >
+            <input type="text" name="sisa_permintaan" placeholder="Sisa Permintaan" >
             <input type="text" name="satuan_sisa_permintaan" placeholder="Satuan PTBAE (CO2 e)">
             <div class="btn-box">
                 <button type="button" id="previous3">Previous</button>
@@ -119,24 +119,19 @@
         function sendData(formData) {
             fetch("{{ url_for('save_permintaan_route') }}", {
                 method: 'POST',
-                body: formdata  
+                body: formData  
             })
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
-                return response.json();
-            })
-            .then(data => {
-                // Handle response data, redirect or show success message
-                redirectToSuccesPage();
+                redirectToSuccesPage(); // Memanggil fungsi untuk mengarahkan ke halaman berhasil tanpa memparses respons
             })
             .catch(error => {
-
                 console.error(error);
             });
         }
-    
+            
         function redirectToSuccesPage() {
             window.location.href = "{{ url_for('permintaan_berhasil') }}";
         }
@@ -193,12 +188,12 @@
         function mergeForm(form) {
             var inputs = form.querySelectorAll('input');
             for (var i = 0; i < inputs.length; i++) {
-                console.log(inputs[i].value)
                 formdata.append(inputs[i].name, inputs[i].value)
             }
         }
  
         document.getElementById("kirimdata").addEventListener("click", function() {
+            event.preventDefault();
             if (validateForm(Form1) && validateForm(Form2) && validateForm(Form3) && validateForm(Form4))
                 {
                     mergeForm(Form1)
