@@ -120,24 +120,19 @@
         function sendData(formData) {
             fetch("{{ url_for('save_penawaran_route') }}", {
                 method: 'POST',
-                body: formdata  
+                body: formData  
             })
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
-                return response.json();
-            })
-            .then(data => {
-                // Handle response data, redirect or show success message
-                redirectToSuccesPage();
+                redirectToSuccesPage(); // Memanggil fungsi untuk mengarahkan ke halaman berhasil tanpa memparses respons
             })
             .catch(error => {
-
                 console.error(error);
             });
         }
-    
+            
         function redirectToSuccesPage() {
             window.location.href = "{{ url_for('penawaran_berhasil') }}";
         }
