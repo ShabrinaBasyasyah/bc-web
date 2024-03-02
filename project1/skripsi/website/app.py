@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 import psycopg2
 from psycopg2 import sql
 import random
@@ -127,26 +127,54 @@ def save_penawaran(id_penawaran, id_periode_penawaran, id_perusahaan, tanggal_pe
     cur.close()
     conn.close()
 
-def save_permintaan(id_permintaan, id_periode_permintaan, id_pelaku_permintaan, tanggal_permintaan,
+def save_permintaan(id_permintaan, id_periode_permintaan, id_perusahaan, tanggal_permintaan,
                     tanggal_awal_permintaan, tanggal_akhir_permintaan, nama_pltu_peminta, unit_peminta, ptbae_diminta,
                     satuan, harga, mata_uang, sisa_permintaan, satuan_sisa_permintaan):
     conn = psycopg2.connect(
         dbname = "ptbae",
         user="postgres",
         password="dks120193",
-        port="5433"
+        port= 5433
     )   
     
     cur = conn.cursor()
     
-    cur.execute("INSERT INTO permintaan (id_permintaan, id_periode_permintaan, id_pelaku_permintaan, tanggal_permintaan,"
+    cur.execute("INSERT INTO permintaan (id_permintaan, id_periode_permintaan, id_perusahaan, tanggal_permintaan,"
                 "tanggal_awal_permintaan, tanggal_akhir_permintaan, nama_pltu_peminta, unit_peminta, ptbae_diminta,"
-                "satuan, harga, mata_uang, jumlah_terbeli, satuan_terbeli, sisa_permintaan, satuan_sisa_permintaan) "
+                "satuan, harga, mata_uang, sisa_permintaan, satuan_sisa_permintaan) "
                 "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                (id_permintaan, id_periode_permintaan, id_pelaku_permintaan, tanggal_permintaan,
+                (id_permintaan, id_periode_permintaan, id_perusahaan, tanggal_permintaan,
                 tanggal_awal_permintaan, tanggal_akhir_permintaan, nama_pltu_peminta, unit_peminta, ptbae_diminta,
-                satuan, harga, mata_uang, sisa_permintaan, satuan_sisa_permintaan)) 
+                satuan, harga, mata_uang, sisa_permintaan, satuan_sisa_permintaan))
     
+    conn.commit()
+    cur.close()
+    conn.close()
+
+def save_transaksi_beli(id_transaksi_beli, id_periode_transaksi_beli, kode_transaksi_beli, tanggal_transaksi_beli,
+                        id_pelaku_transaksi_beli, id_penjual, jumlah_karbon_masuk, satuan_karbon_masuk, harga_beli,
+                        satuan_harga_beli, token, token_expired, saldo_emisi, satuan_saldo, approval_status,
+                        satuan_terbeli, sisa_permintaan, satuan_sisa_permintaan, tanggal_terbeli, status):
+    conn = psycopg2.connect(
+        dbname="ptbae",
+        user="postgres",
+        password="dks120193",
+        host="localhost",
+        port=5433
+    )
+    cur = conn.cursor()
+
+    cur.execute("INSERT INTO transaksi_beli (id_transaksi_beli, id_periode_transaksi_beli, kode_transaksi_beli, "
+                "tanggal_transaksi_beli, id_pelaku_transaksi_beli, id_penjual, jumlah_karbon_masuk, "
+                "satuan_karbon_masuk, harga_beli, satuan_harga_beli, token, token_expired, saldo_emisi, "
+                "satuan_saldo, approval_status, satuan_terbeli, sisa_permintaan, satuan_sisa_permintaan, "
+                "tanggal_terbeli, status) "
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (id_transaksi_beli, id_periode_transaksi_beli, kode_transaksi_beli, tanggal_transaksi_beli,
+                 id_pelaku_transaksi_beli, id_penjual, jumlah_karbon_masuk, satuan_karbon_masuk, harga_beli,
+                 satuan_harga_beli, token, token_expired, saldo_emisi, satuan_saldo, approval_status,
+                 satuan_terbeli, sisa_permintaan, satuan_sisa_permintaan, tanggal_terbeli, status))
+
     conn.commit()
     cur.close()
     conn.close()
@@ -316,7 +344,7 @@ def penawaran_berhasil():
 def buat_permintaan():
     return render_template('create_permintaan.html')
 
-@app.route('/save_permintaan', methods=['POST'])
+@app.route('/save_permintaan_route', methods=['POST'])
 def save_permintaan_route():
     if request.method == 'POST':
         print("Metode Permintaan: POST")
@@ -324,7 +352,7 @@ def save_permintaan_route():
         id_permintaan = generate_id_permintaan()
         id_periode_permintaan = generate_id_periode_permintaan()
         
-        id_pelaku_permintaan = request.form.get('id_pelaku_permintaan')
+        id_perusahaan = request.form.get('id_perusahaan')
         tanggal_permintaan = request.form.get('tanggal_permintaan')
         tanggal_awal_permintaan = request.form.get('tanggal_awal_permintaan')
         tanggal_akhir_permintaan = request.form.get('tanggal_akhir_permintaan')
@@ -337,7 +365,7 @@ def save_permintaan_route():
         sisa_permintaan = request.form.get('sisa_permintaan')
         satuan_sisa_permintaan = request.form.get('satuan_sisa_permintaan')
         
-        print("ID Perusahaan:", id_pelaku_permintaan)
+        print("ID Perusahaan:", id_perusahaan)
         print ("Tanggal Permintaan:", tanggal_permintaan)
         print("Tanggal Awal Permintaan:", tanggal_awal_permintaan )
         print("Tanggal Akhir Permintaan:", tanggal_akhir_permintaan)
@@ -350,34 +378,13 @@ def save_permintaan_route():
         print("sisa permintaan:", sisa_permintaan)
         print("satuan sisa permintaan:", satuan_sisa_permintaan)
         
-        if not id_pelaku_permintaan:
-            return "ID Perusahaan tidak boleh kosong"
-        elif not tanggal_permintaan:
-            return "tanggal permintaan tidak boleh kosong"
-        elif not tanggal_awal_permintaan:
-            return "tanggal awal permintaan tidak boleh kosong"
-        elif not tanggal_akhir_permintaan:
-            return "tanggal akhir permintaan tidak boleh kosong"
-        elif not nama_pltu_peminta:
-            return "nama pltu tidak boleh kosong"
-        elif not unit_peminta:
-            return "unit peminta tidak boleh kosong"
-        elif not ptbae_diminta:
-            return "ptbae diminta tidak boleh kosong"
-        elif not satuan:
-            return "satuan tidak boleh kosong"
-        elif not harga: 
-            return "harga tidak boleh kosong"
-        elif not mata_uang:
-            return "mata uang tidak boleh kosong"
-        else:
-            try:
-                save_permintaan(id_permintaan, id_periode_permintaan, id_pelaku_permintaan, tanggal_permintaan,
-                    tanggal_awal_permintaan, tanggal_akhir_permintaan, nama_pltu_peminta, unit_peminta, ptbae_diminta,
-                    satuan, harga, mata_uang, sisa_permintaan, satuan_sisa_permintaan)
-                return redirect(url_for('permintaan_berhasil'))
-            except Exception as e:
-                return render_template('permintaan_gagal.html')
+        try:
+            save_permintaan(id_permintaan, id_periode_permintaan, id_perusahaan, tanggal_permintaan,
+                tanggal_awal_permintaan, tanggal_akhir_permintaan, nama_pltu_peminta, unit_peminta, ptbae_diminta,
+                satuan, harga, mata_uang, sisa_permintaan, satuan_sisa_permintaan)
+            return redirect(url_for('permintaan_berhasil'))
+        except Exception as e:
+            return render_template('permintaan_gagal.html')
     else:
         return "Method not allowed"
 
@@ -389,6 +396,7 @@ def permintaan_berhasil():
 @app.route('/transaksibeli')
 def buattransaksibeli():
     return render_template('transaksibeli.html')
+
 
 # Route untuk transaksi jual
 @app.route('/transaksijual')
