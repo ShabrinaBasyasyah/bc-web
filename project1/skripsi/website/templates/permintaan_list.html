@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>List Permintaan</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style_listpermintaan.css') }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        body {
+            overflow-y: auto; /* Mengaktifkan scroll vertikal jika konten lebih tinggi dari viewport */
+        }
+
+        .container {
+            max-height: 80vh; /* Menentukan tinggi maksimum konten */
+            overflow-y: auto; /* Mengaktifkan scroll vertikal di dalam konten */
+        }
+    </style>
+</head>
+<body>
+    <div class="menu-bar">
+        <ul>
+            <li><a href="{{ url_for('dashboard') }}"><i class="fa fa-home"></i>home</a> <!-- Tautan ke dashboard -->
+                <div class="sub-menu-1">
+                    <ul>
+                        <li><a href="#">Informasi Pengguna</a></li>
+                        <li><a href="#">Unit PLTU</a></li>
+                    </ul>
+                </div>
+            </li> 
+            <li><a href="#">Permintaan</a>
+                <div class="sub-menu-1">
+                    <ul>
+                        <li><a href="{{ url_for('buat_permintaan') }}">Buat Permintaan</a></li> <!-- Menambahkan tautan ke halaman "lihat permintaan" -->
+                        <li><a href="{{ url_for('listpermintaan') }}">Lihat Permintaan</a></li>
+                    </ul>
+                </div>
+            </li>
+            <li><a href="#">Penawaran</a>
+                <div class="sub-menu-1">
+                    <ul>
+                        <li><a href="{{ url_for('buat_penawaran') }}">Buat Penawaran</a></li> <!-- Menambahkan tautan ke halaman "lihat permintaan" -->
+                        <li><a href="{{ url_for('listpenawaran') }}">Lihat Penawaran</a></li>
+                    </ul>
+                </div>
+            </li> 
+            <li><a href="#">Buat Transaksi</a>
+                <div class="sub-menu-1">
+                    <ul>
+                        <li><a href="{{ url_for('buattransaksijual') }}">Transaksi Jual</a></li> <!-- Menambahkan tautan ke halaman "lihat permintaan" -->
+                        <li><a href="{{ url_for('buat_transaksi_beli') }}">Transaksi Beli</a></li> <!-- Menambahkan tautan ke halaman "lihat permintaan" -->
+                    </ul>
+                </div>
+            </li> 
+            <li><a href="#">Saldo</a>
+                <div class="sub-menu-1">
+                    <ul>
+                        <li><a href="#">Cek Saldo</a></li>
+                    </ul>
+                </div>
+            </li> 
+            <li><a href="{{ url_for('view_blockchain') }}">Blockchain</a></li> <!-- Menambahkan tautan ke halaman "lihat permintaan" -->
+            <li><a href="#"><i class="fa fa-bell"></i>Notifikasi</a></li>
+        </ul>
+    </div>
+    </div>
+    <div class="container">
+        <h3>Informasi Permintaan</h3>
+        <table border="1" id="permintaan-table">
+            <tr>
+                <th>ID Permintaan</th>
+                <th>ID Perusahaan</th>
+                <th>Tanggal Permintaan</th>
+                <th>Tanggal Akhir Permintaan</th>
+                <th>PTBAE Diminta</th>
+                <th>Satuan</th>
+                <th>Harga</th>
+                <th>Mata Uang</th>
+            </tr>
+            <!-- Data permintaan will be inserted here dynamically -->
+            {% for permintaan in permintaan_data %}
+            <tr>
+                <td>{{ permintaan[0] }}</td>
+                <td>{{ permintaan[1] }}</td>
+                <td>{{ permintaan[2] }}</td>
+                <td>{{ permintaan[3] }}</td>
+                <td>{{ permintaan[4] }}</td>
+                <td>{{ permintaan[5] }}</td>
+                <td>{{ permintaan[6] }}</td>
+                <td>{{ permintaan[7] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        socket.on('update_permintaan', function(permintaan_data) {
+            updatePermintaanTable(permintaan_data);
+        });
+
+        function updatePermintaanTable(data) {
+            var table = document.getElementById("permintaan-table");
+            var tbody = table.getElementsByTagName('tbody')[0];
+
+            // Clear existing rows
+            tbody.innerHTML = "";
+
+            // Populate table with new data
+            data.forEach(function(permintaan) {
+                var row = tbody.insertRow();
+                row.insertCell().textContent = permintaan[0];
+                row.insertCell().textContent = permintaan[1];
+                row.insertCell().textContent = permintaan[2];
+                row.insertCell().textContent = permintaan[3];
+                row.insertCell().textContent = permintaan[4];
+                row.insertCell().textContent = permintaan[5];
+                row.insertCell().textContent = permintaan[6];
+                row.insertCell().textContent = permintaan[7];
+            });
+        }
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,24 @@
+<html>
+<head>
+<title>Welcome</title>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style_role.css') }}">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+    <div class="container">
+        <form>
+            <h3>Selamat Datang di Carbon Trading System</h3>
+            <h4>Silahkan Pilih role</h4>
+            <div class="btn-box">
+                <button type="button" onclick="Daftar()">Daftar</button>
+                <button type="button" onclick="Daftar()">Daftar</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        function Daftar() {
+            window.location.href = "/signup"; // Redirect to the signup page
+        }
+    </script>
+</body>
+</html>
