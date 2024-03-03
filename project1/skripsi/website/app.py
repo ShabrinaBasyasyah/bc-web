@@ -194,7 +194,21 @@ def get_permintaan_data():
     cur.close()
     conn.close()
     return permintaan_data
-    
+
+def get_penawaran_data():
+    conn = psycopg2.connect(
+        dbname = "ptbae",
+        user = "postgres",
+        password = "dks120193",
+        host = "localhost",
+        port = 5433
+    )
+    cur = conn.cursor()
+    cur.execute("SELECT id_penawaran, id_perusahaan, tanggal_penawaran, tanggal_akhir_penawaran, ptbae_ditawarkan, satuan, harga, mata_uang FROM penawaran")
+    penawaran_data = cur.fetchall()
+    cur.close()
+    return penawaran_data
+
 # Route untuk halaman utama
 @app.route('/')
 def landing():
@@ -203,6 +217,10 @@ def landing():
 def send_updated_permintaan():
     permintaan_data = get_permintaan_data()
     socketio.emit('update_permintaan', permintaan_data)
+    
+def send_updated_penawaran():
+    penawaran_data = get_penawaran_data()
+    socketio.emit('update_penawaran', penawaran_data)
 
 # Route untuk halaman sign up
 @app.route('/signup')
@@ -347,6 +365,7 @@ def save_penawaran_route():
                                satuan_sisa_penawaran, available_penawaran)
                 
                 # Redirect ke halaman berhasil penawaran
+                send_updated_penawaran()
                 return redirect(url_for('penawaran_berhasil'))
             except Exception as e:
                 # Tangani kesalahan jika terjadi
@@ -355,10 +374,14 @@ def save_penawaran_route():
         # Handle the case where the request method is not POST
         return "Method not allowed"
 
-
 @app.route('/penawaran_berhasil')
 def penawaran_berhasil():
     return render_template('penawaran_berhasil.html')
+
+@app.route('/listpenawaran')
+def listpenawaran():
+    penawaran_data = get_penawaran_data()
+    return render_template('penawaran_list.html', penawaran_data=penawaran_data)
 
 @app.route('/create_permintaan')
 def buat_permintaan():
@@ -446,4 +469,4 @@ def handle_connect():
     print('Client connected')
     
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    socketio.run(app, debug=True, host='0.0.0.0', port=5000)
