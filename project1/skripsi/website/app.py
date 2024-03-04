@@ -5,9 +5,99 @@ from psycopg2 import sql
 import random
 import string
 import uuid
+import hashlib
+import json
+import datetime
 
+class Blockchain:
+    def __init__(self):
+        self.chain = []
+        self.create_block(proof=1, previous_hash='0')
+        
+    def create_block(self, proof, previous_hash):
+        block = {
+            'index': len(self.chain) + 1,
+            'timestamp': str(datetime.datetime.now()),
+            'proof': proof,
+            'previous_hash': previous_hash,
+            'data': None
+        }
+        self.chain.append(block)
+        return block
+    
+    def get_last_block(self):
+        return self.chain[-1]
+    
+    def proof_of_work(self, previous_proof):
+        new_proof = 1
+        check_proof = False
+        while check_proof is False:
+            hash_operation = hashlib.sha256(
+                str(new_proof**2 - previous_proof**2).encode()).hexdigest()
+            if hash_operation[:4] == '0000':
+                check_proof = True
+            else:
+                new_proof += 1
+            return new_proof
+    
+    def hash(self, block):
+        encoded_block = json.dumps(block, sort_keys=True).encode()
+        return hashlib.sha256(encoded_block).hexdigest()
+    
+    def is_chain_valid(self, chain):
+        previous_block = chain[0]
+        block_index = 1
+        while block_index < len(chain):
+            block = chain[block_index]
+            if block['previous_hash'] != self.hash(previous_block):
+                return False
+            previous_proof = previous_block['proof']
+            proof = block['proof']
+            hash_operation = hashlib.sha256(
+                str(proof**2 - previous_proof**2).encode()).hexdigest()
+            if hash_operation[:4] != '0000':
+                return False
+            previous_block = block
+            block_index += 1
+        return True
+    
+    def get_data_from_database(self):
+        conn = psycopg2.connect(
+            dbname='ptbae',
+            user='postgres',
+            password = 'dks120193',
+            host = 'localhost',
+            port = 5433
+        )
+        cursor = conn.cursor()
+        cursor.execute("SELECT * From transaksi_jual")
+        data_tabel1 = cursor.fetchall()
+        cursor.execute("SELECT * FROM transaksi_beli")
+        data_tabel2 = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return{'transaksi_jual': data_tabel1, 'transaksi_beli': data_tabel2}
+
+    def add_data_to_block(self):
+        new_block_data = self.get_data_from_database()
+        previous_block = self.get_last_block()
+        new_block_index = previous_block['index'] + 1
+        new_block_proof = self.proof_of_work(previous_block['proof'])
+        new_block_previous_hash = self.hash(previous_block)
+        new_block = {
+            'index': new_block_index,
+            'timestamp': str(datetime.datetime.now()),
+            'proof': new_block_proof,
+            'previous_hash': new_block_previous_hash,
+            'data': new_block_data
+        }
+        self.chain.append(new_block)
+        return new_block
+        
 app = Flask(__name__)
 socketio = SocketIO(app)
+blockchain = Blockchain()
+
 def generate_password():
     characters = string.ascii_letters + string.digits + string.punctuation
     password = ''.join(random.choice(characters) for i in range(8))
@@ -522,6 +612,8 @@ def save_transaksi_beli_route():
         if save_transaksi_beli(id_transaksi_beli, id_periode_transaksi_beli, kode_transaksi_beli, tanggal_transaksi_beli,
                                 id_pelaku_transaksi_beli, id_penjual, jumlah_karbon_masuk, satuan_karbon_masuk, harga_beli, 
                                 satuan_harga_beli, token, id_permintaan, id_penawaran, id_transaksi_awal):
+            blockchain.add_data_to_block()
+            
             return redirect(url_for('transaksi_beli_berhasil'))
         else:
             return render_template('transaksibeli_gagal.html')
@@ -565,6 +657,8 @@ def save_transaksi_jual_route():
         if save_transaksi_jual(id_transaksi_jual, id_periode_transaksi_jual, kode_transaksi_jual, tanggal_transaksi_jual,
                                 id_pelaku_transaksi_jual, id_pembeli, jumlah_karbon_keluar, satuan_karbon_keluar, harga_jual, 
                                 satuan_harga_jual, token, id_permintaan, id_penawaran, id_transaksi_awal):
+            blockchain.add_data_to_block()
+            
             return redirect(url_for('transaksi_jual_berhasil'))
         else:
             return render_template('transaksijual_gagal.html')
@@ -584,13 +678,54 @@ def saldo():
     saldo = get_saldo(nama_perusahaan)
     return render_template('saldo.html', saldo=saldo)
 
+@app.route('/mine_block', methods=['GET'])
+def mine_block():
+    block = blockchain.add_data_to_block()
+    response = {
+        'message': 'Block mined',
+        'index': block['index'],
+        'timestamp': block['timestamp'],
+        'proof': block['proof'],
+        'previous_hash': block['previous_hash'],
+        'data': block['data']
+    }
+    return jsonify(response), 200
+
+@app.route('/get_chain', methods=['GET'])
+def get_chain():
+    response = {
+        'chain': blockchain.chain,
+        'length': len(blockchain.chain)
+    }
+    return jsonify(response), 200
+
 @app.route('/view_blockchain')
 def view_blockchain():
-    return render_template('view_blockchain.html')
+    return render_template('view_blockchain.html', blockchain=blockchain.chain)
 
 @socketio.on('connect')
 def handle_connect():
     print('Client connected')
+    
+@socketio.on('mine_block')
+def handle_mine_block():
+    block = blockchain.add_data_to_block()
+    response = {
+        'message': 'Block mined',
+        'index': block['index'],
+        'timestamp': block['timestamp'],
+        'proof': block['proof'],
+        'previous_hash': block['previous_hash'],
+        'data': block['data']
+    }
+    emit('mined_block', response)
+
+def handle_get_chain():
+    response = {
+        'chain': blockchain.chain,
+        'length' : len(blockchain.chain)
+    }    
+    emit('chain_response', response)
     
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0',port=5000)
