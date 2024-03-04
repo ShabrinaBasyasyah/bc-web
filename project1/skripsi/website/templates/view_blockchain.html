@@ -1,8 +1,17 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<title>Pembelian berhasil</title>
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style_view_blockchain.css') }}">
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style_view_blockchain.css') }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        .container {
+            overflow-y: auto; /* Membuat konten dapat di-scroll secara vertikal */
+            max-height: 400px; /* Sesuaikan dengan tinggi maksimum yang diinginkan */
+        }
+    </style>
 </head>
 <body>
     <div class="menu-bar">
@@ -51,10 +60,18 @@
         </ul>
     </div>
     <div class="container">
-        <form>
-            <h3>Blockchain</h3>
-            </div>
-        </form>
+        <h1>Blockchain</h1>
+        <ul>
+            {% for block in blockchain %}
+                <li>
+                    <strong>Index:</strong> {{ block.index }}<br>
+                    <strong>Timestamp:</strong> {{ block.timestamp }}<br>
+                    <strong>Proof:</strong> {{ block.proof }}<br>
+                    <strong>Previous Hash:</strong> {{ block.previous_hash }}<br>
+                    <strong>Data:</strong> {{ block.data }}<br>
+                </li>
+            {% endfor %}
+        </ul>
     </div>
 </body>
 </html>
