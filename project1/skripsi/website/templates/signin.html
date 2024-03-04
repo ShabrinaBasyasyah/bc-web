@@ -1,0 +1,57 @@
+<!DOCTYPE html> 
+<html>
+<head>
+    <meta name="viewreport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style_signin.css') }}">
+    <script src="https://kit.fontawesome.com/33daf86ee9.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="container">
+    <div class="form-box">
+        <h1 id="title">Sign In</h1>
+        <form method="POST" action="/signin/authenticate"> <!-- Menambahkan method POST dan action -->
+            <div class="input-group">
+                <div class="input-field">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" name="username" placeholder="Username">
+                </div>                
+                <div class="input-field">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" name="nama_perusahaan" placeholder="Nama Perusahaan">
+                </div>
+                <div class="input-field" id="idPerusahaan">
+                    <i class="fa-regular fa-id-card"></i>
+                    <input type="text" name="id_perusahaan" placeholder="ID Perusahaan">
+                </div>
+                <div class="input-field" id="password">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" name="password" placeholder="Password">
+                </div>
+            </div>
+            <div class="btn-field">
+                <button type="submit" id="signinBtn">Sign in</button> <!-- Mengubah type menjadi submit -->
+                <a href="/signup"><button type="button" id="signupBtn">Belum punya akun? Klik daftar disini</button></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    let signupBtn = document.getElementById("signupBtn");
+    let signinBtn = document.getElementById("signinBtn");
+    let idPerusahaan = document.getElementById("idPerusahaan");
+    let password = document.getElementById("password");
+    let title = document.getElementById("title");
+    
+    signinBtn.onclick = function(){
+        idPerusahaan.style.maxHeight = "0";
+        password.style.maxHeight = "0";
+        title.innerHTML = "Sign In";     
+        signinBtn.classList.add("disable");
+        signupBtn.classList.remove("disable");
+    }
+</script>
+
+</body>
+</html>
